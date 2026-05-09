@@ -17,9 +17,14 @@
   grid-rows-3 splits height into three equal bands.
   CSS Grid auto-placement handles the varying col/row spans from TaskTile.
 -->
+<!--
+  fixed inset-0 pins the grid to the viewport without touching body overflow,
+  so caretaker pages (different routes) can scroll normally.
+-->
 <div
-	class="w-screen h-screen overflow-hidden bg-slate-900
+	class="fixed inset-0 overflow-hidden bg-slate-900
 	       grid grid-cols-4 grid-rows-3 gap-2 p-2"
+	style="overscroll-behavior: none;"
 >
 	{#each TASKS as task (task.id)}
 		<TaskTile {task} onComplete={handleComplete} />
