@@ -52,7 +52,7 @@
 			No patients linked to your account yet.
 		</div>
 	{:else}
-		<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+		<div class="space-y-4">
 			{#each MOCK_VIPS as vip (vip.id)}
 				<VipCard {vip} />
 			{/each}
