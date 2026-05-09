@@ -10,6 +10,7 @@ export interface ReportTask {
 	name: string;
 	icon: string;
 	importance: 1 | 2 | 3;
+	deletedAt?: string;
 }
 
 export interface Completion {
@@ -24,6 +25,7 @@ export interface Completion {
 export interface VipSummary {
 	id: string;
 	display_name: string;
+	activeThemeId: string;
 	tasks: ReportTask[];
 	completions: Completion[];
 }
@@ -198,6 +200,7 @@ export const MOCK_VIPS: VipSummary[] = [
 	{
 		id: 'vip-001',
 		display_name: 'Alex',
+		activeThemeId: 'friendly',
 		tasks: ALEX_TASKS,
 		// Slightly different rates per task — meds are highest priority
 		completions: generateCompletions(ALEX_TASKS, [0.93, 0.88, 0.80, 0.73, 0.68])
@@ -205,6 +208,7 @@ export const MOCK_VIPS: VipSummary[] = [
 	{
 		id: 'vip-002',
 		display_name: 'Sam',
+		activeThemeId: 'lcars',
 		tasks: SAM_TASKS,
 		completions: generateCompletions(SAM_TASKS, [0.97, 0.95, 0.90, 0.85])
 	}
