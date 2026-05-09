@@ -1,5 +1,16 @@
 export type Importance = 1 | 2 | 3;
 
+export interface VipProfile {
+	name: string;
+	activeThemeId: string;
+}
+
+// Mock VIP profile — in production this comes from the Supabase `profiles` table
+export const VIP_PROFILE: VipProfile = {
+	name: 'Alex',
+	activeThemeId: 'friendly' // change to 'lcars' to try the LCARS theme
+};
+
 export interface Task {
 	id: string;
 	name: string;
