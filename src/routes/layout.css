@@ -1,0 +1,12 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+/* Prevent any scroll or overscroll on the tablet — the grid fills the screen exactly */
+html,
+body {
+	overflow: hidden;
+	height: 100%;
+	overscroll-behavior: none;
+	touch-action: manipulation; /* removes 300ms tap delay on Android */
+}
