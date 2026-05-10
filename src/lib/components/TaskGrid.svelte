@@ -29,15 +29,19 @@
 </script>
 
 <Grid>
-	{#each tasks as task (task.id)}
-		<TaskTileController
-			{task}
-			{theme}
-			initialCompleted={task.id in completedToday}
-			initialEncouragement={completedToday[task.id] ?? ''}
-			onComplete={handleComplete}
-		/>
-	{/each}
+	{#if tasks.length > 0}
+		{#each tasks as task (task.id)}
+			<TaskTileController
+				{task}
+				{theme}
+				initialCompleted={task.id in completedToday}
+				initialEncouragement={completedToday[task.id] ?? ''}
+				onComplete={handleComplete}
+			/>
+		{/each}
+	{:else}
+		<div class="text-xl text-red-500">No tasks assigned!</div>
+	{/if}
 </Grid>
 
 {#if allDone}
