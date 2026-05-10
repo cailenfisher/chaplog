@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { THEMES } from '$lib/themes/registry';
+	import { resolve } from '$app/paths';
 
 	const themeOptions = Object.values(THEMES);
 	let selectedTheme = $state('friendly');
@@ -29,7 +30,7 @@
 				</p>
 			</div>
 			<a
-				href="/demo/chaplog/caretaker"
+				href={resolve('/demo/chaplog/caretaker')}
 				class="mt-auto inline-flex items-center justify-center rounded-xl bg-indigo-600 px-5 py-2.5
 				       text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 active:scale-[0.98]"
 			>
@@ -55,14 +56,14 @@
 						class="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700
 						       outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
 					>
-						{#each themeOptions as theme}
+						{#each themeOptions as theme (theme.id)}
 							<option value={theme.id}>{theme.name}</option>
 						{/each}
 					</select>
 				</label>
 
 				<a
-					href="/demo/chaplog/vip?theme={selectedTheme}"
+					href={resolve(`/demo/chaplog/vip?theme=${selectedTheme}`)}
 					class="inline-flex items-center justify-center rounded-xl bg-slate-800 px-5 py-2.5
 					       text-sm font-semibold text-white shadow-sm hover:bg-slate-700 active:scale-[0.98]"
 				>
@@ -73,6 +74,6 @@
 	</div>
 
 	<p class="mt-10 text-sm text-slate-400">
-		<a href="/auth/login" class="underline hover:text-slate-600">Sign in</a> to access the real system.
+		<a href={resolve('/auth/login')} class="underline hover:text-slate-600">Sign in</a> to access the real system.
 	</p>
 </div>

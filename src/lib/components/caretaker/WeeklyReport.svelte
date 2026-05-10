@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { ReportTask, Completion } from '$lib/mock-caretaker';
 	import { addDays, toDateStr } from '$lib/mock-caretaker';
+	import { SvelteMap } from 'svelte/reactivity';
 
 	interface Props {
 		tasks: ReportTask[];
@@ -22,9 +23,9 @@
 	// Nested lookup: dateStr → task_id → Completion
 	const idx = $derived(
 		(() => {
-			const m = new Map<string, Map<string, Completion>>();
+			const m = new SvelteMap<string, SvelteMap<string, Completion>>();
 			for (const c of completions) {
-				if (!m.has(c.completion_date)) m.set(c.completion_date, new Map());
+				if (!m.has(c.completion_date)) m.set(c.completion_date, new SvelteMap());
 				m.get(c.completion_date)!.set(c.task_id, c);
 			}
 			return m;
@@ -63,14 +64,14 @@
 
 <!-- Responsive table -->
 <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-	<table class="w-full min-w-[640px] text-sm">
+	<table class="w-full min-w-160 text-sm">
 		<!-- Column headers -->
 		<thead class="border-b border-slate-100">
 			<tr>
 				<th class="w-40 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
 					Task
 				</th>
-				{#each days as day, i}
+				{#each days as day, i (i)}
 					<th
 						class="px-2 py-3 text-center
 						       {dayStrs[i] === todayStr ? 'text-indigo-600' : 'text-slate-500'}"
@@ -84,7 +85,7 @@
 
 		<!-- Task rows -->
 		<tbody class="divide-y divide-slate-50">
-			{#each tasks as task}
+			{#each tasks as task (task.id)}
 				<tr class="hover:bg-slate-50/60">
 					<td class="px-4 py-3">
 						<div class="flex items-center gap-2">
@@ -92,7 +93,7 @@
 							<span class="font-medium text-slate-700">{task.name}</span>
 						</div>
 					</td>
-					{#each dayStrs as dateStr, di}
+					{#each dayStrs as dateStr (dateStr)}
 						{@const c = idx.get(dateStr)?.get(task.id)}
 						{@const isFuture = dateStr > todayStr}
 						<td class="px-2 py-3 text-center">
@@ -122,7 +123,7 @@
 				<td class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
 					Daily total
 				</td>
-				{#each dailyTotals as n, i}
+				{#each dailyTotals as n, i (i)}
 					<td class="px-2 py-3 text-center">
 						<span
 							class="text-sm font-bold

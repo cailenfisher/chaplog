@@ -7,16 +7,14 @@
 		completionsForRange,
 		toDateStr,
 		addDays,
-		weekStart,
-		monthCalendar
+		weekStart
 	} from '$lib/mock-caretaker';
+	import { SvelteDate } from 'svelte/reactivity';
+	import { resolve } from '$app/paths';
 	import DailyReport from '$lib/components/caretaker/DailyReport.svelte';
 	import WeeklyReport from '$lib/components/caretaker/WeeklyReport.svelte';
 	import MonthlyReport from '$lib/components/caretaker/MonthlyReport.svelte';
 	import TaskForm from '$lib/components/caretaker/TaskForm.svelte';
-
-	// suppress unused import warning
-	monthCalendar;
 
 	const vip = $derived(store.vips.find((v) => v.id === page.params.vipId));
 	const activeTasks = $derived(vip?.tasks.filter((t) => !t.deletedAt) ?? []);
@@ -24,10 +22,10 @@
 
 	type View = 'daily' | 'weekly' | 'monthly' | 'tasks';
 	let activeView = $state<View>('daily');
-	let pivot = $state(new Date());
+	let pivot = new SvelteDate();
 
-	const today = new Date();
-	today.setHours(0, 0, 0, 0);
+	const now = new Date();
+	const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 	const todayStr = toDateStr(today);
 
 	const pivotDateStr = $derived(toDateStr(pivot));
@@ -70,17 +68,17 @@
 	});
 
 	function prev() {
-		if (activeView === 'daily') pivot = addDays(pivot, -1);
-		else if (activeView === 'weekly') pivot = addDays(pivot, -7);
-		else pivot = new Date(pivotYear, pivotMonth - 1, 1);
+		if (activeView === 'daily') pivot.setTime(addDays(pivot, -1).getTime());
+		else if (activeView === 'weekly') pivot.setTime(addDays(pivot, -7).getTime());
+		else pivot.setTime(new Date(pivotYear, pivotMonth - 1, 1).getTime());
 	}
 	function next() {
 		if (!canGoNext) return;
-		if (activeView === 'daily') pivot = addDays(pivot, 1);
-		else if (activeView === 'weekly') pivot = addDays(pivot, 7);
-		else pivot = new Date(pivotYear, pivotMonth + 1, 1);
+		if (activeView === 'daily') pivot.setTime(addDays(pivot, 1).getTime());
+		else if (activeView === 'weekly') pivot.setTime(addDays(pivot, 7).getTime());
+		else pivot.setTime(new Date(pivotYear, pivotMonth + 1, 1).getTime());
 	}
-	function switchView(v: View) { activeView = v; pivot = new Date(); }
+	function switchView(v: View) { activeView = v; pivot.setTime(Date.now()); }
 
 	let showAddTask = $state(false);
 	let editingTask = $state<ReportTask | null>(null);
@@ -102,12 +100,12 @@
 	<div class="py-24 text-center">
 		<p class="text-5xl">🔍</p>
 		<h2 class="mt-4 text-xl font-bold text-slate-700">Patient not found</h2>
-		<a href="/demo/chaplog/caretaker" class="mt-3 inline-block text-indigo-600 hover:underline">← Back to dashboard</a>
+		<a href={resolve('/demo/chaplog/caretaker')} class="mt-3 inline-block text-indigo-600 hover:underline">← Back to dashboard</a>
 	</div>
 {:else}
 	<div class="mb-6 flex flex-wrap items-start justify-between gap-4">
 		<div>
-			<a href="/demo/chaplog/caretaker" class="mb-2 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-600">← Dashboard</a>
+			<a href={resolve('/demo/chaplog/caretaker')} class="mb-2 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-600">← Dashboard</a>
 			<h1 class="text-3xl font-bold text-slate-800">{vip.display_name}</h1>
 			<p class="mt-0.5 text-slate-500">
 				Task completion report
@@ -120,7 +118,7 @@
 	</div>
 
 	<div class="mb-5 flex w-fit gap-1 rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
-		{#each REPORT_TABS as { view, label }}
+		{#each REPORT_TABS as { view, label } (view)}
 			<button onclick={() => switchView(view)} class="rounded-lg px-5 py-2 text-sm font-semibold transition-all {activeView === view ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'}">{label}</button>
 		{/each}
 		<div class="mx-1 my-1 w-px bg-slate-200"></div>
@@ -137,7 +135,7 @@
 			{#if !canGoNext}
 				<span class="text-xs text-slate-400">current {activeView}</span>
 			{:else}
-				<button onclick={() => { pivot = new Date(); }} class="ml-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-500 shadow-sm hover:bg-slate-50">Today</button>
+				<button onclick={() => { pivot.setTime(Date.now()); }} class="ml-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-500 shadow-sm hover:bg-slate-50">Today</button>
 			{/if}
 		</div>
 

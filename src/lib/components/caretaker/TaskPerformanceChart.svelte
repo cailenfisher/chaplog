@@ -1,10 +1,12 @@
 <script module>
 	let _uid = 0;
+	function allocUid() { return ++_uid; }
 </script>
 
 <script lang="ts">
 	import type { ReportTask, Completion } from '$lib/mock-caretaker';
 	import { addDays, toDateStr } from '$lib/mock-caretaker';
+	import { SvelteMap } from 'svelte/reactivity';
 
 	interface Props {
 		tasks: ReportTask[];
@@ -25,10 +27,10 @@
 	const POINTS = DAYS - WINDOW + 1; // 24
 
 	// Unique ID to avoid gradient ID collisions between multiple chart instances
-	const uid = ++_uid;
+	const uid = allocUid();
 
-	const today = new Date();
-	today.setHours(0, 0, 0, 0);
+	const now = new Date();
+	const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 	// Oldest → newest, 30 entries
 	const dates = Array.from({ length: DAYS }, (_, i) =>
 		toDateStr(addDays(today, -(DAYS - 1 - i)))
@@ -36,7 +38,7 @@
 
 	const completedByTask = $derived(
 		(() => {
-			const m = new Map<string, Set<string>>();
+			const m = new SvelteMap<string, Set<string>>();
 			for (const task of tasks) m.set(task.id, new Set<string>());
 			for (const c of completions) m.get(c.task_id)?.add(c.completion_date);
 			return m;
@@ -101,7 +103,7 @@
 		aria-label="Task completion rate over past 30 days"
 	>
 		<defs>
-			{#each series as s, i}
+			{#each series as s, i (i)}
 				<linearGradient
 					id="area-{uid}-{i}"
 					gradientUnits="userSpaceOnUse"
@@ -115,7 +117,7 @@
 		</defs>
 
 		<!-- Grid lines + Y labels -->
-		{#each gridRates as rate}
+		{#each gridRates as rate (rate)}
 			{@const gy = py(rate)}
 			<line x1={PL} y1={gy} x2={VW - PR} y2={gy} stroke="#e2e8f0" stroke-width="1" />
 			<text
@@ -129,12 +131,12 @@
 		{/each}
 
 		<!-- Area fills -->
-		{#each series as s, i}
+		{#each series as s, i (i)}
 			<path d={areaPath(s.rates)} fill="url(#area-{uid}-{i})" />
 		{/each}
 
 		<!-- Lines -->
-		{#each series as s}
+		{#each series as s (s.task.id)}
 			<path
 				d={smoothPath(s.rates)}
 				fill="none"
@@ -146,20 +148,20 @@
 		{/each}
 
 		<!-- Endpoint dots (most recent value) -->
-		{#each series as s}
+		{#each series as s (s.task.id)}
 			{@const last = s.rates[s.rates.length - 1]}
 			<circle cx={px(POINTS - 1)} cy={py(last)} r="3.5" fill={s.color} />
 		{/each}
 
 		<!-- X axis month labels -->
-		{#each monthLabels as { x, label }}
+		{#each monthLabels as { x, label } (label)}
 			<text x={x} y={VH - 6} text-anchor="middle" font-size="8" fill="#94a3b8">{label}</text>
 		{/each}
 	</svg>
 
 	<!-- Legend -->
 	<div class="mt-1.5 flex flex-wrap gap-x-5 gap-y-1.5">
-		{#each series as s}
+		{#each series as s (s.task.id)}
 			{@const recentPct = Math.round(s.rates[s.rates.length - 1] * 100)}
 			<div class="flex items-center gap-1.5 text-xs text-slate-600">
 				<div class="h-0.5 w-5 rounded-full" style="background:{s.color}"></div>

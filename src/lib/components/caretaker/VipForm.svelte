@@ -35,7 +35,6 @@
 	}
 </script>
 
-<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <dialog
 	bind:this={dialog}
 	onclose={onclose}
@@ -65,7 +64,7 @@
 					class="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800
 					       outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
 				>
-					{#each themeOptions as opt}
+					{#each themeOptions as opt (opt.id)}
 						<option value={opt.id}>{opt.name}</option>
 					{/each}
 				</select>

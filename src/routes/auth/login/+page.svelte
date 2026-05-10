@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { resolve } from '$app/paths';
 	import type { ActionData } from './$types';
 
 	let { form }: { form: ActionData } = $props();
@@ -63,7 +64,7 @@
 		</div>
 
 		<p class="mt-6 text-center text-xs text-slate-400">
-			<a href="/demo/chaplog" class="underline hover:text-slate-600">View demo without signing in →</a>
+			<a href={resolve('/demo/chaplog')} class="underline hover:text-slate-600">View demo without signing in →</a>
 		</p>
 	</div>
 </div>

@@ -56,7 +56,7 @@
 
 <!-- Task list -->
 <div class="space-y-2">
-	{#each sorted as task}
+	{#each sorted as task (task.id)}
 		{@const c = byTask.get(task.id)}
 		<div
 			class="flex items-start gap-4 rounded-xl border p-4

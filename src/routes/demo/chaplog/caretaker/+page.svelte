@@ -64,7 +64,7 @@
 			{#each store.vips as vip (vip.id)}
 				<VipCard
 					{vip}
-					reportHref="/demo/chaplog/caretaker/{vip.id}"
+					reportRoute="/demo/chaplog/caretaker/[vipId]"
 					onEdit={() => (editingVip = vip)}
 					onDelete={() => store.removeVip(vip.id)}
 				/>

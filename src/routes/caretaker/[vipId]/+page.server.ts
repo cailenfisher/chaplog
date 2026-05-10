@@ -3,7 +3,7 @@ import { addDays, toDateStr } from '$lib/mock-caretaker';
 import type { ReportTask, Completion } from '$lib/mock-caretaker';
 
 export const load = async ({ locals, params }) => {
-	const { supabase, user } = locals;
+	const { supabase } = locals;
 	const { vipId } = params;
 
 	// Verify caretaker relationship + load VIP profile

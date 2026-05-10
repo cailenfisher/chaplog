@@ -2,20 +2,20 @@
 	import type { VipSummary } from '$lib/mock-caretaker';
 	import { completionsForDate, toDateStr, addDays } from '$lib/mock-caretaker';
 	import TaskPerformanceChart from './TaskPerformanceChart.svelte';
+	import { SvelteMap } from 'svelte/reactivity';
+	import { resolve } from '$app/paths';
 
 	interface Props {
 		vip: VipSummary;
-		reportHref?: string;
+		reportRoute?: '/caretaker/[vipId]' | '/demo/chaplog/caretaker/[vipId]';
 		onEdit?: () => void;
 		onDelete?: () => void;
 	}
 
-	let { vip, reportHref, onEdit, onDelete }: Props = $props();
+	let { vip, reportRoute = '/caretaker/[vipId]', onEdit, onDelete }: Props = $props();
 
-	const resolvedHref = $derived(reportHref ?? `/caretaker/${vip.id}`);
-
-	const today = new Date();
-	today.setHours(0, 0, 0, 0);
+	const now = new Date();
+	const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 	const todayStr = toDateStr(today);
 
 	const activeTasks = $derived(vip.tasks.filter((t) => !t.deletedAt));
@@ -44,7 +44,7 @@
 
 	const completedByTask = $derived(
 		(() => {
-			const m = new Map<string, Set<string>>();
+			const m = new SvelteMap<string, Set<string>>();
 			for (const task of activeTasks) m.set(task.id, new Set<string>());
 			for (const c of vip.completions) m.get(c.task_id)?.add(c.completion_date);
 			return m;
@@ -116,7 +116,7 @@
 			</div>
 
 			<div class="flex flex-wrap gap-1.5">
-				{#each activeTasks as task}
+				{#each activeTasks as task (task.id)}
 					{@const completed = completionsForDate(vip.completions, todayStr).some((c) => c.task_id === task.id)}
 					<span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium {completed ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-400'}">
 						{task.icon} {task.name}
@@ -127,7 +127,7 @@
 				{/if}
 			</div>
 
-			<a href={resolvedHref} class="text-sm font-medium text-indigo-500 transition-colors hover:text-indigo-700">
+			<a href={resolve(reportRoute, { vipId: vip.id })} class="text-sm font-medium text-indigo-500 transition-colors hover:text-indigo-700">
 				View full report →
 			</a>
 		</div>
@@ -146,7 +146,7 @@
 				<div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
 					<p class="mb-2 text-xs font-semibold uppercase tracking-wide text-amber-700">Attention needed</p>
 					<div class="flex flex-col gap-1.5">
-						{#each alerts as a}
+						{#each alerts as a (a.task.id)}
 							<div class="flex items-center gap-2 text-sm">
 								<span>{a.task.icon}</span>
 								<span class="font-medium text-amber-900">{a.task.name}</span>

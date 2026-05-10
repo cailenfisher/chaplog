@@ -41,7 +41,6 @@
 	];
 </script>
 
-<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <dialog
 	bind:this={dialog}
 	onclose={onclose}
@@ -82,7 +81,7 @@
 			<fieldset class="flex flex-col gap-2">
 				<legend class="text-sm font-medium text-slate-700">Tile size</legend>
 				<div class="flex gap-2">
-					{#each importanceOptions as opt}
+					{#each importanceOptions as opt (opt.value)}
 						<label
 							class="flex flex-1 cursor-pointer flex-col items-center gap-0.5 rounded-lg border
 							       px-3 py-2.5 text-center transition-all

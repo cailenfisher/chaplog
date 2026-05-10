@@ -1,4 +1,4 @@
-import { MOCK_VIPS, type VipSummary, type ReportTask } from './mock-caretaker';
+import { MOCK_VIPS, type VipSummary } from './mock-caretaker';
 
 class CaretakerStore {
 	vips = $state<VipSummary[]>(structuredClone(MOCK_VIPS));

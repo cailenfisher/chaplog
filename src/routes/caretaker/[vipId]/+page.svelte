@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
 	import { deserialize } from '$app/forms';
-	import { page } from '$app/state';
+	import { resolve } from '$app/paths';
 	import type { PageData } from './$types';
 	import type { ReportTask } from '$lib/mock-caretaker';
+	import { SvelteDate } from 'svelte/reactivity';
 	import {
 		completionsForDate,
 		completionsForRange,
@@ -25,10 +26,10 @@
 	// ── View & navigation state ───────────────────────────────────────────────
 	type View = 'daily' | 'weekly' | 'monthly' | 'tasks';
 	let activeView = $state<View>('daily');
-	let pivot = $state(new Date());
+	let pivot = new SvelteDate();
 
-	const today = new Date();
-	today.setHours(0, 0, 0, 0);
+	const now = new Date();
+	const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 	const todayStr = toDateStr(today);
 
 	const pivotDateStr = $derived(toDateStr(pivot));
@@ -73,17 +74,17 @@
 	});
 
 	function prev() {
-		if (activeView === 'daily') pivot = addDays(pivot, -1);
-		else if (activeView === 'weekly') pivot = addDays(pivot, -7);
-		else pivot = new Date(pivotYear, pivotMonth - 1, 1);
+		if (activeView === 'daily') pivot.setTime(addDays(pivot, -1).getTime());
+		else if (activeView === 'weekly') pivot.setTime(addDays(pivot, -7).getTime());
+		else pivot.setTime(new Date(pivotYear, pivotMonth - 1, 1).getTime());
 	}
 	function next() {
 		if (!canGoNext) return;
-		if (activeView === 'daily') pivot = addDays(pivot, 1);
-		else if (activeView === 'weekly') pivot = addDays(pivot, 7);
-		else pivot = new Date(pivotYear, pivotMonth + 1, 1);
+		if (activeView === 'daily') pivot.setTime(addDays(pivot, 1).getTime());
+		else if (activeView === 'weekly') pivot.setTime(addDays(pivot, 7).getTime());
+		else pivot.setTime(new Date(pivotYear, pivotMonth + 1, 1).getTime());
 	}
-	function switchView(v: View) { activeView = v; pivot = new Date(); }
+	function switchView(v: View) { activeView = v; pivot.setTime(Date.now()); }
 
 	// ── Task management ───────────────────────────────────────────────────────
 	let showAddTask = $state(false);
@@ -139,7 +140,7 @@
 <!-- Page header -->
 <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
 	<div>
-		<a href="/caretaker" class="mb-2 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-600">
+		<a href={resolve('/caretaker')} class="mb-2 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-600">
 			← Dashboard
 		</a>
 		<h1 class="text-3xl font-bold text-slate-800">{vip.display_name}</h1>
@@ -157,7 +158,7 @@
 
 <!-- Tab bar -->
 <div class="mb-5 flex w-fit gap-1 rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
-	{#each REPORT_TABS as { view, label }}
+	{#each REPORT_TABS as { view, label } (view)}
 		<button
 			onclick={() => switchView(view)}
 			class="rounded-lg px-5 py-2 text-sm font-semibold transition-all
@@ -188,7 +189,7 @@
 		{#if !canGoNext}
 			<span class="text-xs text-slate-400">current {activeView}</span>
 		{:else}
-			<button onclick={() => { pivot = new Date(); }} class="ml-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-500 shadow-sm hover:bg-slate-50">Today</button>
+			<button onclick={() => { pivot.setTime(Date.now()); }} class="ml-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-500 shadow-sm hover:bg-slate-50">Today</button>
 		{/if}
 	</div>
 
