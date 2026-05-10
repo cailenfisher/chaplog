@@ -18,6 +18,7 @@ export type Database = {
 					role: Database['public']['Enums']['user_role'];
 					display_name: string;
 					avatar_url: string | null;
+					active_theme_id: string;
 					created_at: string;
 					updated_at: string;
 				};
@@ -26,6 +27,7 @@ export type Database = {
 					role: Database['public']['Enums']['user_role'];
 					display_name: string;
 					avatar_url?: string | null;
+					active_theme_id?: string;
 					created_at?: string;
 					updated_at?: string;
 				};
@@ -34,9 +36,19 @@ export type Database = {
 					role?: Database['public']['Enums']['user_role'];
 					display_name?: string;
 					avatar_url?: string | null;
+					active_theme_id?: string;
 					created_at?: string;
 					updated_at?: string;
 				};
+				Relationships: [];
+			};
+
+			// ── themes ─────────────────────────────────────────────────────────
+			themes: {
+				Row: { id: string; name: string; description: string | null };
+				Insert: { id: string; name: string; description?: string | null };
+				Update: { id?: string; name?: string; description?: string | null };
+				Relationships: [];
 			};
 
 			// ── caretaker_vip ──────────────────────────────────────────────────
@@ -59,6 +71,7 @@ export type Database = {
 					vip_id?: string;
 					created_at?: string;
 				};
+				Relationships: [];
 			};
 
 			// ── tasks ──────────────────────────────────────────────────────────
@@ -108,6 +121,7 @@ export type Database = {
 					created_at?: string;
 					updated_at?: string;
 				};
+				Relationships: [];
 			};
 
 			// ── task_completions ───────────────────────────────────────────────
@@ -145,6 +159,7 @@ export type Database = {
 					notes?: string | null;
 					created_at?: string;
 				};
+				Relationships: [];
 			};
 		};
 
@@ -165,6 +180,7 @@ export type Database = {
 					vip_name: string;
 					vip_id: string;
 				};
+				Relationships: [];
 			};
 		};
 

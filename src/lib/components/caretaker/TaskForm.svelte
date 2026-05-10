@@ -1,15 +1,14 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import { store } from '$lib/caretaker-store.svelte';
 	import type { ReportTask } from '$lib/mock-caretaker';
 
 	interface Props {
-		vipId: string;
 		task?: ReportTask;
+		onSave: (data: { name: string; icon: string; importance: 1 | 2 | 3 }) => void | Promise<void>;
 		onclose: () => void;
 	}
 
-	let { vipId, task, onclose }: Props = $props();
+	let { task, onSave, onclose }: Props = $props();
 
 	const isEdit = $derived(!!task);
 
@@ -23,15 +22,11 @@
 		dialog.showModal();
 	});
 
-	function save() {
+	async function save() {
 		const trimmedName = name.trim();
 		const trimmedIcon = icon.trim();
 		if (!trimmedName || !trimmedIcon) return;
-		if (isEdit && task) {
-			store.updateTask(vipId, task.id, { name: trimmedName, icon: trimmedIcon, importance });
-		} else {
-			store.addTask(vipId, { name: trimmedName, icon: trimmedIcon, importance });
-		}
+		await onSave({ name: trimmedName, icon: trimmedIcon, importance });
 		onclose();
 	}
 
@@ -54,9 +49,7 @@
 	class="w-full max-w-md rounded-2xl bg-white p-0 shadow-xl backdrop:bg-black/40 backdrop:backdrop-blur-sm"
 >
 	<form onsubmit={save} class="flex flex-col gap-6 p-6">
-		<h2 class="text-xl font-bold text-slate-800">
-			{isEdit ? 'Edit Task' : 'Add Task'}
-		</h2>
+		<h2 class="text-xl font-bold text-slate-800">{isEdit ? 'Edit Task' : 'Add Task'}</h2>
 
 		<div class="flex flex-col gap-4">
 			<div class="flex gap-3">
@@ -93,17 +86,9 @@
 						<label
 							class="flex flex-1 cursor-pointer flex-col items-center gap-0.5 rounded-lg border
 							       px-3 py-2.5 text-center transition-all
-							       {importance === opt.value
-								? 'border-indigo-400 bg-indigo-50'
-								: 'border-slate-200 hover:border-slate-300'}"
+							       {importance === opt.value ? 'border-indigo-400 bg-indigo-50' : 'border-slate-200 hover:border-slate-300'}"
 						>
-							<input
-								type="radio"
-								name="importance"
-								value={opt.value}
-								bind:group={importance}
-								class="sr-only"
-							/>
+							<input type="radio" name="importance" value={opt.value} bind:group={importance} class="sr-only" />
 							<span class="text-sm font-semibold text-slate-800">{opt.label}</span>
 							<span class="text-xs text-slate-400">{opt.description}</span>
 						</label>
@@ -113,12 +98,7 @@
 		</div>
 
 		<div class="flex justify-end gap-3">
-			<button
-				type="button"
-				onclick={onclose}
-				class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium
-				       text-slate-600 hover:bg-slate-50"
-			>
+			<button type="button" onclick={onclose} class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
 				Cancel
 			</button>
 			<button
